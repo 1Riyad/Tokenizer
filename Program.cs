@@ -33,7 +33,8 @@ namespace Tokenizer
                 this.lineNumber = 1;
             }
 
-            public char peek(int index = 1)
+
+            public char peek(int index =1)
             {
                 if (this.hasMore(index))
                 {
@@ -50,7 +51,8 @@ namespace Tokenizer
                     this.lineNumber++;
                 return currentChar;
             }
-            public bool hasMore(int index= 1) { return (this.currentPostion + index) < this.input.Length; }
+
+            public bool hasMore(int index = 1) { return (this.currentPostion + index) < this.input.Length; }
 
             public Token tokenizer(Tokenizable[] handlers)
             {
@@ -193,7 +195,6 @@ namespace Tokenizer
                 return token;
             }
         }
-
 
         static void Main(string[] args)
         {
