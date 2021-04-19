@@ -195,21 +195,46 @@ namespace Tokenizer
                 return token;
             }
         }
+        public class PunctuationTokenizer : Tokenizable
+        {
+            public override bool tokenizable(Tokenizer t)
+            {
+                return (t.hasMore() && Char.IsPunctuation(t.peek()));
+             
+            }
+
+            public override Token tokenize(Tokenizer t)
+            {
+                Token token = new Token();
+                token.value = "";
+                token.type = "Punctuation";
+                token.position = t.currentPostion;
+                token.lineNumber = t.lineNumber;
+
+                while (t.hasMore() && Char.IsPunctuation(t.peek()))
+                {
+                    token.value += t.next();
+                }
+                return token;
+            }
+        }
 
         static void Main(string[] args)
         {
             //string testCase = "123 3456   Tuwaiq_BootCamp3 #abc123";
-            string testCase = "#123abc 1.1 22 55.6";
+            string testCase = "#123abc 3456   Tuwaiq_BootCamp3 #abc123 123 1.1 22 . 55.6 Hi_hdfj; ";
             Tokenizer t = new Tokenizer(testCase);
             Tokenizable[] handlers = new Tokenizable[] { /*new NumberTokenizer(),*/
                                                         new NumberTokenizer(),
                                                          new WhiteSpaceTokenizer(),
                                                          new IdTokenizer(),
-                                                         new ColorHashTokenizer()};
+                                                         new ColorHashTokenizer(),
+                                                         new PunctuationTokenizer()};
             Token token = t.tokenizer(handlers);
+            Console.WriteLine("----------------------");
             while (token != null)
             {
-                Console.WriteLine(token.value);
+                Console.WriteLine(token.value + " |  "+ token.type);
                 token = t.tokenizer(handlers);
             }
         }
