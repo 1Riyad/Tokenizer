@@ -223,11 +223,6 @@ namespace Tokenizer
         {
             public override bool tokenizable(Tokenizer t)
             {
-                //Console.WriteLine("-------------hi-----------------");
-                //Console.WriteLine(t.peek());
-                //Console.WriteLine(t.peek(2));
-                //Console.WriteLine(t.peek() == '/');
-                //Console.WriteLine("------------------------------");
                 return t.hasMore() && (t.peek() == '/') && (t.peek(2) == '/');
             }
 
@@ -254,12 +249,6 @@ namespace Tokenizer
         {
             public override bool tokenizable(Tokenizer t)
             {
-                //Console.WriteLine("-------------hi-----------------");
-                //Console.WriteLine(t.peek());
-                //Console.WriteLine(t.peek(2));
-                //Console.WriteLine(t.peek() == '/');
-                //Console.WriteLine("------------------------------");
-                /*   */
                 return t.hasMore() && ((t.peek() == '/') && (t.peek(2) == '*'));
             }
 
@@ -272,7 +261,6 @@ namespace Tokenizer
                 token.lineNumber = t.lineNumber;
                token.value += t.next();
                 token.value += t.next();
-                //while (t.hasMore() && (t.peek() != '*')&& (t.peek(2) != '/'))
                     while (t.hasMore()  )
                     {
 
@@ -290,20 +278,132 @@ namespace Tokenizer
             }
 
         }
+        public class SingleQuotTokenizer : Tokenizable
+        {
+            bool isClosed = false;
+            int pos;
+            public override bool tokenizable(Tokenizer t)
+            {
+                return t.hasMore() && t.peek() == char.Parse("'");
+            }
+
+            public override Token tokenize(Tokenizer t)
+            {
+                Token token = new Token();
+                token.value = "";
+                token.type = "Single Quot";
+                pos =t.currentPostion;
+                token.position = t.currentPostion;
+                token.lineNumber = t.lineNumber;
+                isClosed = false;
+                while (t.hasMore())
+                {
+                    token.value += t.next();
+                    if (t.peek() == char.Parse("'"))
+                    {
+                        isClosed = true;
+                        token.value += t.next();
+                        break;
+                    }
+
+                }
+                if(isClosed){
+                return token;
+                }
+                else{
+                    t.currentPostion = pos;
+                    token.value = "";
+                    if(t.hasMore()){
+                    t.next();
+                    return token;
+                    }
+                    
+                    while (t.hasMore())
+                {
+                    token.value += t.next();
+                    if (t.peek() == char.Parse("'"))
+                    {
+                        isClosed = true;
+                        token.value += t.next();
+                        break;
+                    }
+
+                }
+                return token;
+                }
+            }
+        }
+        public class StringTokenizer : Tokenizable
+        {
+            bool isClosed1 = false;
+            int pos1;
+            public override bool tokenizable(Tokenizer t)
+            {
+
+                return t.hasMore() && t.peek() == '\"';
+            }
+
+            public override Token tokenize(Tokenizer t)
+            {
+                
+                Token token = new Token();
+                token.value = "";
+                token.type = "Double Quot";
+                pos1 =t.currentPostion;
+                token.position = t.currentPostion;
+                token.lineNumber = t.lineNumber;
+                isClosed1 = false;
+                while (t.hasMore())
+                {
+                    token.value += t.next();
+                    if (t.peek() == ('\"'))
+                    {
+                        isClosed1 = true;
+                        token.value += t.next();
+                        break;
+                    }
+
+                }
+                if(isClosed1){
+                return token;
+                }else{
+                    t.currentPostion = pos1;
+                    token.value = "";
+                    if(t.hasMore()){
+                    t.next();
+                    return token;
+                    }
+                    
+                    while (t.hasMore())
+                {
+                    token.value += t.next();
+                    if (t.peek() == '\"')
+                    {
+                        isClosed1 = true;
+                        token.value += t.next();
+                        break;
+                    }
+
+                }
+                return token;
+                }
+            }
+        }
 
         static void Main(string[] args)
-        {//
-            //string testCase = "123 3456   Tuwaiq_BootCamp3 #abc123";
-            string testCase = "#123abc 3456   Tuwaiq_BootCamp3 #abc123 123 1.1 22 . 55.6 Hi_hdfj; /*  1.1 22 */ //Tuwaiq_BootCamp3 ";
+        {
+            string testCase = "'' '999' \" 999 #123abc 3456   Tuwaiq_BootCamp3 #abc123 123 1.1 22 . 55.6 Hi_hdfj; /*  1.1 22 */ //Tuwaiq_BootCamp3 ";
             Tokenizer t = new Tokenizer(testCase);
             Tokenizable[] handlers = new Tokenizable[] { /*new NumberTokenizer(),*/
                                                         new NumberTokenizer(),
+                                                        new SingleQuotTokenizer(),
+                                                        new StringTokenizer(),
+                                                         new ILCommentTokenizer(),
+                                                         new MuitLinesCommentTokenizer(),
                                                          new WhiteSpaceTokenizer(),
                                                          new IdTokenizer(),
                                                          new ColorHashTokenizer(),
-                                                         new PunctuationTokenizer(),
-                                                         new ILCommentTokenizer(),
-                                                         new MuitLinesCommentTokenizer()};
+                                                         new PunctuationTokenizer()};
             Token token = t.tokenizer(handlers);
             Console.WriteLine("----------------------");
             while (token != null)
