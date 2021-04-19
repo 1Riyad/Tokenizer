@@ -33,11 +33,11 @@ namespace Tokenizer
                 this.lineNumber = 1;
             }
 
-            public char peek()
+            public char peek(int currentPostion =1)
             {
                 if (this.hasMore())
                 {
-                    return this.input[currentPostion + 1];
+                    return this.input[this.currentPostion + currentPostion];
                 }
                 else
                     return '\0';
@@ -142,7 +142,7 @@ namespace Tokenizer
             Tokenizer t = new Tokenizer("123 3456   Tuwaiq_BootCamp3");
             Tokenizable[] handlers = new Tokenizable[] { new NumberTokenizer(),
                                                          new WhiteSpaceTokenizer(),
-                                                         new IdTokenizer() };
+                                                         new IdTokenizer()};
             Token token = t.tokenizer(handlers);
             while (token != null)
             {
