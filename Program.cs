@@ -219,17 +219,91 @@ namespace Tokenizer
             }
         }
 
-        static void Main(string[] args)
+        public class ILCommentTokenizer : Tokenizable
         {
+            public override bool tokenizable(Tokenizer t)
+            {
+                //Console.WriteLine("-------------hi-----------------");
+                //Console.WriteLine(t.peek());
+                //Console.WriteLine(t.peek(2));
+                //Console.WriteLine(t.peek() == '/');
+                //Console.WriteLine("------------------------------");
+                return t.hasMore() && (t.peek() == '/') && (t.peek(2) == '/');
+            }
+
+            public override Token tokenize(Tokenizer t)
+            {
+                Token token = new Token();
+                token.value = "";
+                token.type = "Comment";
+                token.position = t.currentPostion;
+                token.lineNumber = t.lineNumber;
+
+                while (t.hasMore() && (t.peek() != '\n'))
+                {
+
+                    token.value += t.next();
+                }
+                
+                return token;
+            }
+
+        }
+
+        public class MuitLinesCommentTokenizer : Tokenizable
+        {
+            public override bool tokenizable(Tokenizer t)
+            {
+                //Console.WriteLine("-------------hi-----------------");
+                //Console.WriteLine(t.peek());
+                //Console.WriteLine(t.peek(2));
+                //Console.WriteLine(t.peek() == '/');
+                //Console.WriteLine("------------------------------");
+                /*   */
+                return t.hasMore() && ((t.peek() == '/') && (t.peek(2) == '*'));
+            }
+
+            public override Token tokenize(Tokenizer t)
+            {
+                Token token = new Token();
+                token.value = "";
+                token.type = "CommentTokenizerMuitLines";
+                token.position = t.currentPostion;
+                token.lineNumber = t.lineNumber;
+               token.value += t.next();
+                token.value += t.next();
+                //while (t.hasMore() && (t.peek() != '*')&& (t.peek(2) != '/'))
+                    while (t.hasMore()  )
+                    {
+
+                    if((t.peek() + "" + t.peek(2) == "*/"))
+                    {
+                        token.value += t.next();
+                        token.value += t.next();
+                        break;
+                    }
+
+                    token.value += t.next();
+                }
+                
+                return token;
+            }
+
+        }
+
+        static void Main(string[] args)
+        {//
             //string testCase = "123 3456   Tuwaiq_BootCamp3 #abc123";
-            string testCase = "#123abc 3456   Tuwaiq_BootCamp3 #abc123 123 1.1 22 . 55.6 Hi_hdfj; ";
+            string testCase = "#123abc 3456   Tuwaiq_BootCamp3 #abc123 123 1.1 22 . 55.6 Hi_hdfj; /*  1.1 22 */ //Tuwaiq_BootCamp3 ";
             Tokenizer t = new Tokenizer(testCase);
             Tokenizable[] handlers = new Tokenizable[] { /*new NumberTokenizer(),*/
                                                         new NumberTokenizer(),
                                                          new WhiteSpaceTokenizer(),
                                                          new IdTokenizer(),
                                                          new ColorHashTokenizer(),
-                                                         new PunctuationTokenizer()};
+                                                         new PunctuationTokenizer(),
+                                                         new ILCommentTokenizer(),
+                                                         new MuitLinesCommentTokenizer()};
             Token token = t.tokenizer(handlers);
             Console.WriteLine("----------------------");
             while (token != null)
