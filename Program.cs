@@ -21,7 +21,7 @@ namespace Tokenizer
 
         public class Tokenizer
         {
-            private string input;
+            public string input;
             public int currentPostion;
             public int lineNumber;
             //public Tokenizable handlers;
@@ -450,7 +450,7 @@ namespace Tokenizer
 
         static void Main(string[] args)
         {
-            string testCase = "#ab 1.2 2. 51555.6 2.5548 1555.5848 .336 f#f'' '999' \" 999 #123abc 3456   Tuwaiq_BootCamp3 #abc123 123 1.1 22 . 55.6 Hi_hdfj; /*  1.1 22 */ //Tuwaiq_BootCamp3 ";
+            string testCase = "@ #ab 1.2 2. 51555.6 2.5548 1555.5848 .336 f#f'' '999' \" 999 #123abc 3456   Tuwaiq_BootCamp3 #abc123 123 1.1 22 . 55.6 Hi_hdfj; /*  1.1 22 */ //Tuwaiq_BootCamp3 ";
             Tokenizer t = new Tokenizer(testCase);
             Tokenizable[] handlers = new Tokenizable[] { /*new NumberTokenizer(),*/
                                                         new NumberTokenizer(),
@@ -462,13 +462,25 @@ namespace Tokenizer
                                                          new IdTokenizer(),
                                                          new HexColorTokenizer(),
                                                          new PunctuationTokenizer()};
-            Token token = t.tokenizer(handlers);
-            Console.WriteLine("----------------------");
-            while (token != null)
+            //Token token = t.tokenizer(handlers);
+            //Console.WriteLine("----------------------");
+            //while (token != null)
+            //{
+            //    Console.WriteLine($"{token.value} [{token.type}]");
+            //    Console.WriteLine("----------------------");
+            //    token = t.tokenizer(handlers);
+            //}
+            Token token = null;
+            while(t.currentPostion + 1 < t.input.Length)
             {
-                Console.WriteLine($"{token.value} [{token.type}]");
-                Console.WriteLine("----------------------");
                 token = t.tokenizer(handlers);
+                if (token != null)
+                    Console.WriteLine($"{token.value} [{token.type}]");
+
+                else t.next();
+                //else if (token == null && t.hasMore()) t.next();
+
+                //else break;
             }
         }
     }
