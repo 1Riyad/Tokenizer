@@ -416,7 +416,7 @@ namespace Tokenizer
             }
         }
 
-        static void Main(string[] args)
+        static void Main_(string[] args)
         {
             string testCase = "@ \"ttt\" #ab 1.2 2. 51555.6 2.5548 1555.5848 .336 f#f'' '999' \" 999 #123abc 3456   Tuwaiq_BootCamp3 #abc123 123 1.1 22 . 55.6 Hi_hdfj; /*  1.1 22 */ ' //Tuwaiq_BootCamp3 ";
             Tokenizer t = new Tokenizer(testCase);
