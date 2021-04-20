@@ -397,7 +397,7 @@ namespace Tokenizer
                     token.value = "";
                     if(t.hasMore()){
                     t.next();
-                    return token;
+                    return null;
                     }
                     
                     while (t.hasMore())
@@ -416,38 +416,6 @@ namespace Tokenizer
             }
         }
 
-        //public class NumberTokenizer : Tokenizable
-        //{
-        //    public override bool tokenizable(Tokenizer t)
-        //    {
-        //        return t.hasMore() && char.IsDigit(t.peek());
-        //    }
-
-        //    public override Token tokenize(Tokenizer t)
-        //    {
-        //        Token token = new Token();
-        //        token.value = "";
-        //        token.type = "int";
-        //        token.position = t.currentPostion;
-        //        token.lineNumber = t.lineNumber;
-
-        //        while (t.hasMore()
-        //            && !char.IsWhiteSpace(t.peek()))
-        //        {
-        //            if(char.IsDigit(t.peek())) // if token.type == "decimal" then throw error
-        //            {
-        //                token.value += t.next();
-        //            }
-        //            else if(t.peek() == '.')
-        //            {
-        //                token.type = "decimal";
-        //                token.value += t.next();
-        //            }
-        //        }
-        //        return token;
-        //    }
-        //}
-
         static void Main(string[] args)
         {
             string testCase = "@ \"ttt\" #ab 1.2 2. 51555.6 2.5548 1555.5848 .336 f#f'' '999' \" 999 #123abc 3456   Tuwaiq_BootCamp3 #abc123 123 1.1 22 . 55.6 Hi_hdfj; /*  1.1 22 */ ' //Tuwaiq_BootCamp3 ";
@@ -462,14 +430,6 @@ namespace Tokenizer
                                                          new IdTokenizer(),
                                                          new HexColorTokenizer(),
                                                          new PunctuationTokenizer()};
-            //Token token = t.tokenizer(handlers);
-            //Console.WriteLine("----------------------");
-            //while (token != null)
-            //{
-            //    Console.WriteLine($"{token.value} [{token.type}]");
-            //    Console.WriteLine("----------------------");
-            //    token = t.tokenizer(handlers);
-            //}
             Token token = null;
             while(t.currentPostion + 1 < t.input.Length)
             {
@@ -478,9 +438,7 @@ namespace Tokenizer
                     Console.WriteLine($"{token.value} [{token.type}]");
 
                 else t.next();
-                //else if (token == null && t.hasMore()) t.next();
 
-                //else break;
             }
         }
     }
