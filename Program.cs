@@ -21,7 +21,7 @@ namespace Tokenizer
 
         public class Tokenizer
         {
-            private string input;
+            public string input;
             public int currentPostion;
             public int lineNumber;
             //public Tokenizable handlers;
@@ -139,25 +139,41 @@ namespace Tokenizer
             }
         }
 
-        public class ColorHashTokenizer : Tokenizable
+        public class HexColorTokenizer : Tokenizable
         {
             public override bool tokenizable(Tokenizer t)
             {
-                return t.hasMore() && t.peek() == '#';
+                return t.hasMore() && t.peek() == '#'
+                    && (t.currentPostion == -1 || char.IsWhiteSpace(t.peek(0)));// is # in the begging OR there is a space before it
             }
 
             public override Token tokenize(Tokenizer t)
             {
+                int counter = 0;
+
                 Token token = new Token();
-                token.value += t.next();
-                token.type = "color-hash";
+                token.value += t.next(); //  add the #
+                token.type = "hex-color";
                 token.position = t.currentPostion;
                 token.lineNumber = t.lineNumber;
 
+
                 while (t.hasMore()
                     && !char.IsWhiteSpace(t.peek())
-                    && "0123456789abcdefABCDEF".Contains(t.peek()))
+                    && counter < 6)
                 {
+                    if(!"0123456789abcdefABCDEF".Contains(t.peek()))
+                    {
+                        // has at least one hex value after #
+                        if (counter > 0)
+                            return token;
+                        else
+                        {
+                            t.currentPostion = token.position;
+                            return null;
+                        }
+                    }
+                    counter++;
                     token.value += t.next();
                 }
                 return token;
@@ -182,16 +198,25 @@ namespace Tokenizer
                 while (t.hasMore()
                     && !char.IsWhiteSpace(t.peek()))
                 {
-                    if(char.IsDigit(t.peek())) // if token.type == "decimal" then throw error
+                    if(char.IsDigit(t.peek()))
                     {
                         token.value += t.next();
                     }
                     else if(t.peek() == '.')
                     {
+                        if(token.type == "decimal")
+                        {
+                            return token;
+                        }
                         token.type = "decimal";
                         token.value += t.next();
                     }
                 }
+                // add 0 to the end if there is not zero !
+                token.value = token.value[token.value.Length - 1] == '.'
+                    ? (token.value += '0')
+                    : token.value;
+
                 return token;
             }
         }
@@ -241,6 +266,7 @@ namespace Tokenizer
                 }
                 
                 return token;
+                //return null;
             }
 
         }
@@ -390,9 +416,41 @@ namespace Tokenizer
             }
         }
 
+        //public class NumberTokenizer : Tokenizable
+        //{
+        //    public override bool tokenizable(Tokenizer t)
+        //    {
+        //        return t.hasMore() && char.IsDigit(t.peek());
+        //    }
+
+        //    public override Token tokenize(Tokenizer t)
+        //    {
+        //        Token token = new Token();
+        //        token.value = "";
+        //        token.type = "int";
+        //        token.position = t.currentPostion;
+        //        token.lineNumber = t.lineNumber;
+
+        //        while (t.hasMore()
+        //            && !char.IsWhiteSpace(t.peek()))
+        //        {
+        //            if(char.IsDigit(t.peek())) // if token.type == "decimal" then throw error
+        //            {
+        //                token.value += t.next();
+        //            }
+        //            else if(t.peek() == '.')
+        //            {
+        //                token.type = "decimal";
+        //                token.value += t.next();
+        //            }
+        //        }
+        //        return token;
+        //    }
+        //}
+
         static void Main(string[] args)
         {
-            string testCase = "'' '999' \" 999 #123abc 3456   Tuwaiq_BootCamp3 #abc123 123 1.1 22 . 55.6 Hi_hdfj; /*  1.1 22 */ //Tuwaiq_BootCamp3 ";
+            string testCase = "@ #ab 1.2 2. 51555.6 2.5548 1555.5848 .336 f#f'' '999' \" 999 #123abc 3456   Tuwaiq_BootCamp3 #abc123 123 1.1 22 . 55.6 Hi_hdfj; /*  1.1 22 */ //Tuwaiq_BootCamp3 ";
             Tokenizer t = new Tokenizer(testCase);
             Tokenizable[] handlers = new Tokenizable[] { /*new NumberTokenizer(),*/
                                                         new NumberTokenizer(),
@@ -402,14 +460,27 @@ namespace Tokenizer
                                                          new MuitLinesCommentTokenizer(),
                                                          new WhiteSpaceTokenizer(),
                                                          new IdTokenizer(),
-                                                         new ColorHashTokenizer(),
+                                                         new HexColorTokenizer(),
                                                          new PunctuationTokenizer()};
-            Token token = t.tokenizer(handlers);
-            Console.WriteLine("----------------------");
-            while (token != null)
+            //Token token = t.tokenizer(handlers);
+            //Console.WriteLine("----------------------");
+            //while (token != null)
+            //{
+            //    Console.WriteLine($"{token.value} [{token.type}]");
+            //    Console.WriteLine("----------------------");
+            //    token = t.tokenizer(handlers);
+            //}
+            Token token = null;
+            while(t.currentPostion + 1 < t.input.Length)
             {
-                Console.WriteLine(token.value + " |  "+ token.type);
                 token = t.tokenizer(handlers);
+                if (token != null)
+                    Console.WriteLine($"{token.value} [{token.type}]");
+
+                else t.next();
+                //else if (token == null && t.hasMore()) t.next();
+
+                //else break;
             }
         }
     }
