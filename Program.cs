@@ -149,7 +149,6 @@ namespace Tokenizer
 
             public override Token tokenize(Tokenizer t)
             {
-                int positionCache = t.currentPostion;
                 int counter = 0;
 
                 Token token = new Token();
@@ -170,7 +169,7 @@ namespace Tokenizer
                             return token;
                         else
                         {
-                            t.currentPostion = positionCache;
+                            t.currentPostion = token.position;
                             return null;
                         }
                     }
@@ -199,16 +198,25 @@ namespace Tokenizer
                 while (t.hasMore()
                     && !char.IsWhiteSpace(t.peek()))
                 {
-                    if(char.IsDigit(t.peek())) // if token.type == "decimal" then throw error
+                    if(char.IsDigit(t.peek()))
                     {
                         token.value += t.next();
                     }
                     else if(t.peek() == '.')
                     {
+                        if(token.type == "decimal")
+                        {
+                            return token;
+                        }
                         token.type = "decimal";
                         token.value += t.next();
                     }
                 }
+                // add 0 to the end if there is not zero !
+                token.value = token.value[token.value.Length - 1] == '.'
+                    ? (token.value += '0')
+                    : token.value;
+
                 return token;
             }
         }
@@ -442,7 +450,7 @@ namespace Tokenizer
 
         static void Main(string[] args)
         {
-            string testCase = "#ab f#f'' '999' \" 999 #123abc 3456   Tuwaiq_BootCamp3 #abc123 123 1.1 22 . 55.6 Hi_hdfj; /*  1.1 22 */ //Tuwaiq_BootCamp3 ";
+            string testCase = "#ab 1.2 2. 51555.6 2.5548 1555.5848 .336 f#f'' '999' \" 999 #123abc 3456   Tuwaiq_BootCamp3 #abc123 123 1.1 22 . 55.6 Hi_hdfj; /*  1.1 22 */ //Tuwaiq_BootCamp3 ";
             Tokenizer t = new Tokenizer(testCase);
             Tokenizable[] handlers = new Tokenizable[] { /*new NumberTokenizer(),*/
                                                         new NumberTokenizer(),
