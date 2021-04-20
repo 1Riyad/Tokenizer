@@ -139,25 +139,42 @@ namespace Tokenizer
             }
         }
 
-        public class ColorHashTokenizer : Tokenizable
+        public class HexColorTokenizer : Tokenizable
         {
             public override bool tokenizable(Tokenizer t)
             {
-                return t.hasMore() && t.peek() == '#';
+                return t.hasMore() && t.peek() == '#'
+                    && (t.currentPostion == -1 || char.IsWhiteSpace(t.peek(0)));// is # in the begging OR there is a space before it
             }
 
             public override Token tokenize(Tokenizer t)
             {
+                int positionCache = t.currentPostion;
+                int counter = 0;
+
                 Token token = new Token();
-                token.value += t.next();
-                token.type = "color-hash";
+                token.value += t.next(); //  add the #
+                token.type = "hex-color";
                 token.position = t.currentPostion;
                 token.lineNumber = t.lineNumber;
 
+
                 while (t.hasMore()
                     && !char.IsWhiteSpace(t.peek())
-                    && "0123456789abcdefABCDEF".Contains(t.peek()))
+                    && counter < 6)
                 {
+                    if(!"0123456789abcdefABCDEF".Contains(t.peek()))
+                    {
+                        // has at least one hex value after #
+                        if (counter > 0)
+                            return token;
+                        else
+                        {
+                            t.currentPostion = positionCache;
+                            return null;
+                        }
+                    }
+                    counter++;
                     token.value += t.next();
                 }
                 return token;
@@ -425,7 +442,7 @@ namespace Tokenizer
 
         static void Main(string[] args)
         {
-            string testCase = "'' '999' \" 999 #123abc 3456   Tuwaiq_BootCamp3 #abc123 123 1.1 22 . 55.6 Hi_hdfj; /*  1.1 22 */ //Tuwaiq_BootCamp3 ";
+            string testCase = "#ab f#f'' '999' \" 999 #123abc 3456   Tuwaiq_BootCamp3 #abc123 123 1.1 22 . 55.6 Hi_hdfj; /*  1.1 22 */ //Tuwaiq_BootCamp3 ";
             Tokenizer t = new Tokenizer(testCase);
             Tokenizable[] handlers = new Tokenizable[] { /*new NumberTokenizer(),*/
                                                         new NumberTokenizer(),
@@ -435,13 +452,14 @@ namespace Tokenizer
                                                          new MuitLinesCommentTokenizer(),
                                                          new WhiteSpaceTokenizer(),
                                                          new IdTokenizer(),
-                                                         new ColorHashTokenizer(),
+                                                         new HexColorTokenizer(),
                                                          new PunctuationTokenizer()};
             Token token = t.tokenizer(handlers);
             Console.WriteLine("----------------------");
             while (token != null)
             {
-                Console.WriteLine(token.value + " |  "+ token.type);
+                Console.WriteLine($"{token.value} [{token.type}]");
+                Console.WriteLine("----------------------");
                 token = t.tokenizer(handlers);
             }
         }
