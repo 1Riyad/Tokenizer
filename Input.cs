@@ -97,7 +97,7 @@ namespace Tokenizer
 
 
 
-        static void Main(string[] args)
+        static void Main_(string[] args)
         {
             // <to log message>
             Input i = new Input("Tuwaiq Bootcamp programming for .Net ");
